@@ -13,12 +13,13 @@ from ipaddr import IPAddress, IPv6Address, IPv4Address
 
 import bridgedb.Stability as Stability
 from bridgedb.Stability import BridgeHistory
+import logging
 
 toHex = binascii.b2a_hex
 fromHex = binascii.a2b_hex
 HEX_ID_LEN = 40
 
-db_filename = ""
+db_filename = None
 
 def _escapeValue(v):
     return "'%s'" % v.replace("'", "''")
@@ -436,12 +437,13 @@ def openDatabase(sqlite_file):
                 cur.executescript(SCHEMA_2TO3_SCRIPT)
             elif val != 3:
                 logging.warn("Unknown schema version %s in database.", val)
-            db_filename = sqlite_file
         except sqlite3.OperationalError:
             logging.warn("No Config table found in DB; creating tables")
             cur.executescript(SCHEMA3_SCRIPT)
             conn.commit()
     finally:
+        if sqlite_file:
+            db_filename = sqlite_file
         cur.close()
     return conn
 
@@ -510,4 +512,10 @@ def setGlobalDB(db):
 
 def getDB(newHandle=False):
     global db_filename
-    return Database(db_filename) if newHandle else _THE_DB
+    if newHandle:
+        if not db_filename:
+            logging.error("BUG: Tried to open DB without filename!")
+	else:
+            return Database(db_filename)
+    else:
+        return _THE_DB
