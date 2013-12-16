@@ -652,7 +652,7 @@ class BridgeStabilityTests(unittest.TestCase):
         db = self.db
         b = fakeBridge()
         timestamp = time.time()
-        bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b, timestamp)
+        bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b, timestamp, db)
         assert isinstance(bhe, BridgeHistory)
         assert isinstance(db.getBridgeHistory(b.fingerprint), BridgeHistory)
         assert len([y for y in db.getAllBridgeHistory()]) == 1
@@ -661,7 +661,7 @@ class BridgeStabilityTests(unittest.TestCase):
         db = self.db
         b = fakeBridge()
         timestamp = time.time()
-        bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b, timestamp)
+        bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b, timestamp, db)
         assert isinstance(bhe, BridgeHistory)
         assert isinstance(db.getBridgeHistory(b.fingerprint), BridgeHistory)
         db.delBridgeHistory(b.fingerprint)
@@ -679,13 +679,13 @@ class BridgeStabilityTests(unittest.TestCase):
         downtime = 60*60*random.randint(0,4) # random hours of downtime
 
         for t in timestampSeries(now):
-            bridgedb.Stability.addOrUpdateBridgeHistory(b,t)
+            bridgedb.Stability.addOrUpdateBridgeHistory(b,t, db)
         assert db.getBridgeHistory(b.fingerprint).tosa == time_on_address
 
         b.orport += 1
 
         for t in timestampSeries(now + time_on_address + downtime):
-            bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b,t)
+            bhe = bridgedb.Stability.addOrUpdateBridgeHistory(b,t, db)
         assert db.getBridgeHistory(b.fingerprint).tosa == time_on_address + downtime
 
     def testLastSeenWithDifferentAddressAndPort(self):
@@ -695,13 +695,13 @@ class BridgeStabilityTests(unittest.TestCase):
             time_start = time.time()
             ts = [ 60*30*(i+1) + time_start for i in xrange(num_desc) ]
             b = random.choice([fakeBridge(), fakeBridge6()])
-            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, t) for t in ts ]
+            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, t, db) for t in ts ]
 
             # change the port
             b.orport = b.orport+1
             last_seen = ts[-1]
             ts = [ 60*30*(i+1) + last_seen for i in xrange(num_desc) ]
-            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, t) for t in ts ]
+            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, t, db) for t in ts ]
             b = db.getBridgeHistory(b.fingerprint)
             assert b.tosa == ts[-1] - last_seen
             assert (long(last_seen*1000) == b.lastSeenWithDifferentAddressAndPort)
@@ -710,6 +710,7 @@ class BridgeStabilityTests(unittest.TestCase):
     def testFamiliar(self):
         # create some bridges
         # XXX: slow
+        db = self.db
         num_bridges = 10
         num_desc = 4*48 # 30m intervals, 48 per day
         time_start = time.time()
@@ -718,7 +719,7 @@ class BridgeStabilityTests(unittest.TestCase):
         ts = [ (i+1)*60*30+t for i in xrange(num_bridges) ]
         for b in bridges:
             time_series = [ 60*30*(i+1) + time_start for i in xrange(num_desc) ]
-            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, i) for i in time_series ]
+            [ bridgedb.Stability.addOrUpdateBridgeHistory(b, i, db) for i in time_series ]
         assert None not in bridges
         # +1 to avoid rounding errors
         assert bridges[-(num_bridges/8 + 1)].familiar == True
@@ -750,11 +751,11 @@ class BridgeStabilityTests(unittest.TestCase):
 
         for i in timeseries:
             for b in running:
-                bridgedb.Stability.addOrUpdateBridgeHistory(b, i)
+                bridgedb.Stability.addOrUpdateBridgeHistory(b, i, db)
 
             if num_successful > 0:
                 for b in expired:
-                    bridgedb.Stability.addOrUpdateBridgeHistory(b, i)
+                    bridgedb.Stability.addOrUpdateBridgeHistory(b, i, db)
             num_successful -= 1
 
         # now we expect to see the bridge has been removed from history
