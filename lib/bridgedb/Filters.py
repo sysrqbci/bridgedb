@@ -67,16 +67,16 @@ def filterBridgesByOnlyIP4(bridge):
     for k in bridge.or_addresses.keys():
         if type(k) is IPv6Address:
             return False
-    if type(k) is IPv4Address:
-        return True
+        if type(k) is IPv4Address:
+            return True
     return False
 
 def filterBridgesByOnlyIP6(bridge):
     for k in bridge.or_addresses.keys():
         if type(k) is IPv4Address:
             return False
-    if type(k) is IPv6Address:
-        return True
+        if type(k) is IPv6Address:
+            return True
     return False
 
 def filterBridgesByTransport(methodname, addressClass=None):
