@@ -111,7 +111,7 @@ class BridgeHistory(object):
 
         # return True if self.weightedTime is greater than the weightedTime
         # of the > bottom 1/8 all bridges, sorted by weightedTime
-	db = bridgedb.Storage.getDB(True)
+        db = bridgedb.Storage.getDB()
         allWeightedTimes = [ bh.weightedTime for bh in db.getAllBridgeHistory()]
         numBridges = len(allWeightedTimes)
         logging.debug("Got %d weightedTimes", numBridges)
@@ -134,7 +134,7 @@ class BridgeHistory(object):
         return totalRunlength / totalWeights
 
 def addOrUpdateBridgeHistory(bridge, timestamp, db=None):
-    if not db: db = bridgedb.Storage.getDB(True)
+    if not db: db = bridgedb.Storage.getDB()
     bhe = db.getBridgeHistory(bridge.fingerprint)
     if not bhe:
         # This is the first status, assume 60 minutes.
@@ -205,7 +205,7 @@ def addOrUpdateBridgeHistory(bridge, timestamp, db=None):
     return db.updateIntoBridgeHistory(bhe)
 
 def discountAndPruneBridgeHistories(discountUntilMillis, db=None):
-    if not db: db = bridgedb.Storage.getDB(True)
+    if not db: db = bridgedb.Storage.getDB()
     bhToRemove = []
     bhToUpdate = []
 
@@ -224,7 +224,7 @@ def discountAndPruneBridgeHistories(discountUntilMillis, db=None):
 
 def updateWeightedTime(statusPublicationMillis, db=None):
     bhToUpdate = []
-    if not db: db = bridgedb.Storage.getDB(True)
+    if not db: db = bridgedb.Storage.getDB()
     for bh in db.getBridgesLastUpdatedBefore(statusPublicationMillis):
         interval = (statusPublicationMillis - bh.lastUpdatedWeightedTime)/1000
         if interval > 0:

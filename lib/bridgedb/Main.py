@@ -195,7 +195,7 @@ def updateBridgeHistory(bridges, timestamps):
     :param list timestamps: List of timestamps obtained from the
         networkstatus document
     """
-
+    db = bridgedb.Storage.getDB()
     # The bridge stability metrics are only concerned with a
     # single ip:port so for now we will only consider the bridges
     # primary IP:port
@@ -209,7 +209,8 @@ def updateBridgeHistory(bridges, timestamps):
                     "'%s' in database: %s"
                     % (bridge.fingerprint, timestamp))
                 bridgedb.Stability.addOrUpdateBridgeHistory(
-                    bridge, timestamp)
+                    bridge, timestamp, db)
+    db.close()
     logging.debug("Updated stability of bridges")
 
 def loadConfig(configFile=None, configCls=None):
@@ -405,9 +406,7 @@ def startup(options):
     key = crypto.getKey(config.MASTER_KEY_FILE)
 
     # Initialize our DB file.
-    db = bridgedb.Storage.Database(config.DB_FILE + ".sqlite", config.DB_FILE)
-    # TODO: move setGlobalDB to bridgedb.persistent.State class
-    bridgedb.Storage.setGlobalDB(db)
+    db = bridgedb.Storage.getDB(config.DB_FILE + ".sqlite", config.DB_FILE)
 
     # Get a proxy list.
     proxyList = ProxyCategory()

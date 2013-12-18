@@ -173,8 +173,7 @@ class RhymesWith255Category:
 class EmailBridgeDistTests(unittest.TestCase):
     def setUp(self):
         self.fd, self.fname = tempfile.mkstemp()
-        self.db = bridgedb.Storage.Database(self.fname)
-        bridgedb.Storage.setGlobalDB(self.db)
+        self.db = bridgedb.Storage.getDB(self.fname)
         self.cur = self.db._conn.cursor()
 
     def tearDown(self):
@@ -452,7 +451,7 @@ class DictStorageTests(unittest.TestCase):
 class SQLStorageTests(unittest.TestCase):
     def setUp(self):
         self.fd, self.fname = tempfile.mkstemp()
-        self.db = bridgedb.Storage.Database(self.fname)
+        self.db = bridgedb.Storage.getDB(self.fname)
         self.cur = self.db._conn.cursor()
 
     def tearDown(self):
@@ -639,8 +638,7 @@ class ParseDescFileTests(unittest.TestCase):
 class BridgeStabilityTests(unittest.TestCase):
     def setUp(self):
         self.fd, self.fname = tempfile.mkstemp()
-        self.db = bridgedb.Storage.Database(self.fname)
-        bridgedb.Storage.setGlobalDB(self.db)
+        self.db = bridgedb.Storage.getDB(self.fname)
         self.cur = self.db._conn.cursor()
 
     def tearDown(self):
