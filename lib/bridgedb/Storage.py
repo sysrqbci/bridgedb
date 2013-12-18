@@ -9,6 +9,7 @@ import binascii
 import sqlite3
 import time
 import sha
+import thread
 from ipaddr import IPAddress, IPv6Address, IPv4Address
 
 import bridgedb.Stability as Stability
@@ -20,6 +21,7 @@ fromHex = binascii.a2b_hex
 HEX_ID_LEN = 40
 
 db_filename = None
+_THE_DB = {}
 
 def _escapeValue(v):
     return "'%s'" % v.replace("'", "''")
@@ -211,6 +213,7 @@ class Database:
         else:
             self._conn = openOrConvertDatabase(sqlite_fname, db_fname)
         self._cur = self._conn.cursor()
+        self.filename = sqlite_fname
 
     def commit(self):
         self._conn.commit()
@@ -221,6 +224,7 @@ class Database:
     def close(self):
         self._cur.close()
         self._conn.close()
+        del _THE_DB[thread.get_ident()]
 
     def insertBridgeAndGetRing(self, bridge, setRing, seenAt, validRings,
                                defaultPool="unallocated"):
@@ -504,18 +508,18 @@ def openOrConvertDatabase(sqlite_file, db_file):
     conn.commit()
     return conn
 
-_THE_DB = None
 
-def setGlobalDB(db):
-    global _THE_DB
-    _THE_DB = db
-
-def getDB(newHandle=False):
+def getDB(fname=None, db_fname=None):
     global db_filename
-    if newHandle:
-        if not db_filename:
-            logging.error("BUG: Tried to open DB without filename!")
-	else:
-            return Database(db_filename)
+    tid = thread.get_ident()
+    if tid in _THE_DB:
+        return _THE_DB[tid]
     else:
-        return _THE_DB
+        if not db_filename and not fname:
+            logging.fatal("BUG: Tried to open DB without filename!")
+            raise SystemExit(2)
+        else:
+            database_filename = fname or db_filename
+            print("Opening new connection to DB")
+            _THE_DB[tid] = Database(database_filename, db_fname)
+            return _THE_DB[tid]
