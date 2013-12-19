@@ -454,6 +454,7 @@ def openDatabase(sqlite_file):
 
 def openOrConvertDatabase(sqlite_file, db_file):
     """Open a sqlite database, converting it from a db file if needed."""
+    global db_filename
     if os.path.exists(sqlite_file):
         return openDatabase(sqlite_file)
 
@@ -461,6 +462,9 @@ def openOrConvertDatabase(sqlite_file, db_file):
     cur = conn.cursor()
     cur.executescript(SCHEMA3_SCRIPT)
     conn.commit()
+
+    if sqlite_file:
+        db_filename = sqlite_file
 
     import anydbm
 
@@ -516,10 +520,12 @@ def getDB(fname=None, db_fname=None):
         return _THE_DB[tid]
     else:
         if not db_filename and not fname:
-            logging.fatal("BUG: Tried to open DB without filename!")
-            raise SystemExit(2)
+            errormsg = "BUG: Tried to open DB without filename!\n"
+            errormsg += "'%s', '%s'\n" % (db_filename, fname)
+            errormsg += "%s" % _THE_DB
+            logging.fatal(errormsg)
+            raise SystemExit(errormsg)
         else:
             database_filename = fname or db_filename
-            print("Opening new connection to DB")
             _THE_DB[tid] = Database(database_filename, db_fname)
             return _THE_DB[tid]
