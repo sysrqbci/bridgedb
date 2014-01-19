@@ -224,7 +224,7 @@ class Database:
     def close(self):
         self._cur.close()
         self._conn.close()
-        del _THE_DB[thread.get_ident()]
+        _THE_DB.pop(thread.get_ident(), None)
 
     def insertBridgeAndGetRing(self, bridge, setRing, seenAt, validRings,
                                defaultPool="unallocated"):
