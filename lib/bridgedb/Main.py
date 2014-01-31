@@ -113,8 +113,6 @@ def load(state, splitter, clear=False):
     f.close()
 
     bridges = {}
-    db = bridgedb.Storage.getDB()
-
     for fname in state.BRIDGE_FILES:
         logging.info("Opening bridge-server-descriptor file: '%s'" % fname)
         f = open(fname, 'r')
@@ -182,6 +180,7 @@ def load(state, splitter, clear=False):
         f.close()
 
     reactor.callInThread(updateBridgeHistory, bridges, timestamps)
+    timestamps = None
     bridges = None
     state.save()
     return

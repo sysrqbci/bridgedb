@@ -20,7 +20,9 @@ toHex = binascii.b2a_hex
 fromHex = binascii.a2b_hex
 HEX_ID_LEN = 40
 
+# Filename of our database
 db_filename = None
+# A dict containing all open database connections
 _THE_DB = {}
 
 def _escapeValue(v):
