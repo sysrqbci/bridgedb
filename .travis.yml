@@ -11,7 +11,7 @@ notifications:
     - "Build details : %{build_url}"
   email:
     recipients:
-      - isis@torproject.org
+      #- isis@torproject.org
       - sysrqb@torproject.org
     on_success: never
     on_failure: change
