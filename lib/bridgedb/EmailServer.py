@@ -14,12 +14,14 @@ import logging
 import re
 import rfc822
 import time
+import OpenSSL.SSL
 
 from ipaddr import IPv4Address, IPv6Address
 
 from twisted.internet import reactor
 from twisted.internet.defer import Deferred
 from twisted.internet.task import LoopingCall
+from twisted.internet.ssl import ClientContextFactory
 import twisted.mail.smtp
 
 from zope.interface import implements
@@ -245,12 +247,19 @@ def replyToMail(lines, ctx):
         logging.debug("getMailResponse said not to reply, so I won't.")
         return
     response.seek(0)
+
+    contextFactory = ClientContextFactory()
+    contextFactory.method = TLSv1_METHOD
     d = Deferred()
-    factory = twisted.mail.smtp.SMTPSenderFactory(
+    factory = twisted.mail.smtp.ESMTPSenderFactory(
+        False,
+        False,
         ctx.smtpFromAddr,
         sendToUser,
         response,
-        d)
+        d,
+        contextFactory=contextFactory,
+        requireAuthentication=False)
     reactor.connectTCP(ctx.smtpServer, ctx.smtpPort, factory)
     logging.info("Sending reply to %r", Util.logSafely(sendToUser))
     return d
