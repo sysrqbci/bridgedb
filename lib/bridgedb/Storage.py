@@ -631,4 +631,4 @@ def closeDB():
     next(getDB(), None)
 
 def dbIsLocked():
-    return _LOCKED
+    return _LOCKED != 0
