@@ -546,9 +546,9 @@ def contextmanager(func):
 
 _DB_FNAME = None
 _LOCK = None
-_LOCKED = False
+_LOCKED = 0
 _OPENED_DB = None
-_TOC = None
+_REFCOUNT = 0
 
 def clearGlobalDB():
     """Start from scratch"""
@@ -556,13 +556,12 @@ def clearGlobalDB():
     global _LOCK
     global _LOCKED
     global _OPENED_DB
-    global _TOC
 
     _DB_FNAME = None
     _LOCK = None
     _LOCKED = False
     _OPENED_DB = None
-    _TOC = None
+    _REFCOUNT = 0
 
 def checkAndConvertDB(sqlite_file, db_file):
     openOrConvertDatabase(sqlite_file, db_file).close()
@@ -592,9 +591,8 @@ def getDB(block=True):
     global _LOCK
     global _LOCKED
     global _OPENED_DB
-    global _TOC
+    global _REFCOUNT
 
-    refcount = 0
 
     if not _LOCK:
         _LOCK = threading.RLock()
@@ -604,45 +602,30 @@ def getDB(block=True):
     #    (_DB_FNAME, _LOCK, _LOCKED, _OPENED_DB, _TOC)
 
     try:
-        if _TOC == this_thread:
-            refcount += 1
-            #print "yielding db from earlier"
-            logging.debug("Refcount: %d" % refcount)
+        locked = _LOCK.acquire(block)
+        if locked:
+            _LOCKED += 1
+
+            if not _OPENED_DB:
+                assert _REFCOUNT == 0
+                _OPENED_DB = Database(_DB_FNAME)
+
+            _REFCOUNT += 1   # XXX/Yawning - Make this a global
             yield _OPENED_DB
-        logging.debug("Checking lock status")
-        logging.debug("lock _LOCKED: %s" % _LOCKED)
-        locked = _LOCK.acquire(False)
-        logging.debug("lock aquired: %s" % locked)
-        if locked: _LOCK.release()
-        if _LOCK.acquire(block):
-            db = Database(_DB_FNAME)
-            assert not _LOCKED
-            _LOCKED = True
-            _OPENED_DB = db
-            _TOC = this_thread
-            refcount += 1
-            #print "yielding db of type: %s" % type(db)
-            #print "_DB_FNAME: %s, _LOCK: %s, _LOCKED: %s, _OPENED_DB: %s, _TOC: %s" % \
-            #    (_DB_FNAME, _LOCK, _LOCKED, _OPENED_DB, _TOC)
-            logging.debug("yielding db")
-            yield db
         else:
-            #print "yielding False"
             yield False
     finally:
-        logging.debug("Refcount is %d in finally" % refcount)
-        if refcount == 1:
-            #assert _LOCKED
+        assert locked
+        logging.debug("Refcount is %d in finally" % _REFCOUNT)
+        try:
+            _REFCOUNT -= 1
+            if _REFCOUNT == 0:
+                _OPENED_DB.close()
+                _OPENED_DB = None
+                logging.debug("Refcount resulted in closed")
+        finally:
+            _LOCKED -= 1
             _LOCK.release()
-            assert _LOCK.acquire()
-            _LOCK.release()
-            _LOCKED = False
-            _OPENED_DB = None
-            _TOC = None
-            db.close()
-            logging.debug("Refcount resulted in closed")
-        else:
-            refcount -= 1
 
 def closeDB():
     next(getDB(), None)
