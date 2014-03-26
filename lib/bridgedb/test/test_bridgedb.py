@@ -96,7 +96,7 @@ class BridgeDBCliTest(unittest.TestCase):
         assignments = pjoin(runDir, 'assignments.log')
         self.assertTrue(os.path.isfile(assignments))
         os.unlink(assignments)
-        bridgedbProc.send_signal(signal.SIGHUP)
+        bridgedbProc.send_signal(signal.SIGUSR1)
         time.sleep(5)
         try:
             self.assertTrue(os.path.isfile(assignments))
