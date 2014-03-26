@@ -118,8 +118,6 @@ def load(state, splitter, clear=False):
     logging.debug("Closing network status file")
     f.close()
 
-    bridges = {}
-
     for fname in state.BRIDGE_FILES:
         logging.info("Opening bridge-server-descriptor file: '%s'" % fname)
         f = open(fname, 'r')
@@ -139,6 +137,7 @@ def load(state, splitter, clear=False):
         logging.debug("Closing bridge-server-descriptor file: '%s'" % fname)
         f.close()
 
+    logging.debug("%d bridges." % len(bridges))
     for ID in bridges.keys():
         bridge = bridges[ID]
         if bridge.desc_digest in desc_digests:
@@ -146,6 +145,8 @@ def load(state, splitter, clear=False):
             bridge.setExtraInfoDigest(desc_digests[bridge.desc_digest])
         # We attempt to insert all bridges. If the bridge is not
         # running, then it is skipped during the insertion process.
+        logging.debug("Inserting bridges into splitter.")
+        logging.debug("Fingerprint: %s, EI Digest: %s" % (bridge.fingerprint, bridge.ei_digest))
         splitter.insert(bridge)
 
     # read pluggable transports from extra-info document
@@ -340,7 +341,7 @@ def _handleSIGUSR1(*args):
     cfg = loadConfig(state.CONFIG_FILE, state.config)
 
     logging.info("Dumping bridge assignments to files...")
-    reactor.callLater(0, runner.doDumpBridges, cfg)
+    reactor.callInThread(runner.doDumpBridges, cfg)
 
 
 class ProxyCategory:

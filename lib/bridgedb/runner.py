@@ -17,6 +17,7 @@
 from __future__ import print_function
 
 import sys
+import logging
 
 
 def generateDescriptors(count=None, rundir=None):
@@ -120,6 +121,7 @@ def doDumpBridges(config):
     """
     import bridgedb.Bucket as bucket
 
+    logging.info("Dumping Buckets to files")
     bucketManager = bucket.BucketManager(config)
     bucketManager.assignBridgesToBuckets()
     bucketManager.dumpBridges()

@@ -96,7 +96,8 @@ class BridgeDBCliTest(unittest.TestCase):
         assignments = pjoin(runDir, 'assignments.log')
         self.assertTrue(os.path.isfile(assignments))
         os.unlink(assignments)
-        bridgedbProc.send_signal(signal.SIGUSR1)
+        print("Sending SIGHUP, checking for assignments.log ...")
+        bridgedbProc.send_signal(signal.SIGHUP)
         time.sleep(5)
         try:
             self.assertTrue(os.path.isfile(assignments))
@@ -105,6 +106,7 @@ class BridgeDBCliTest(unittest.TestCase):
             bridgedbProcCode = bridgedbProc.wait()
             print("`bridgedb' exited with status code %d" % int(bridgedbProcCode))
             raise e
+        print("Sending SIGUSR1, checking for bucket files...")
         bridgedbProc.send_signal(signal.SIGUSR1)
         time.sleep(5)
         buckets = [['email', False], ['https', False], ['unallocated', False]]
@@ -121,6 +123,7 @@ class BridgeDBCliTest(unittest.TestCase):
                 bridgedbProcCode = bridgedbProc.wait()
                 print("`bridgedb' exited with status code %d" % int(bridgedbProcCode))
                 raise e
+        print("Done. Killing processes.")
         bridgedbProc.send_signal(signal.SIGINT)
         bridgedbProcCode = bridgedbProc.wait()
         print("`bridgedb' exited with status code %d" % int(bridgedbProcCode))
