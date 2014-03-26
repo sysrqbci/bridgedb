@@ -534,8 +534,8 @@ def startup(options):
          ipDistributorTmp) = createBridgeRings(cfg, proxyList, key)
 
         # Initialize our DB file.
-        db = bridgedb.Storage.Database(cfg.DB_FILE + ".sqlite", cfg.DB_FILE)
-        bridgedb.Storage.setGlobalDB(db)
+        db = bridgedb.Storage.openOrConvertDatabase(cfg.DB_FILE + ".sqlite", cfg.DB_FILE)
+        bridgedb.Storage.setDBFilename(cfg.DB_FILE + ".sqlite")
         load(state, splitter, clear=False)
 
         state = persistent.load()
