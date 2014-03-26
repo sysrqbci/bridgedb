@@ -23,7 +23,6 @@ class DatabaseTest(unittest.TestCase):
     def _runAndDie(self, timeout, func):
         with func():
             sleep(timeout)
-        reactor.stop()
 
     def _cb_assertTrue(self, result):
         self.assertTrue(result)
@@ -46,7 +45,6 @@ class DatabaseTest(unittest.TestCase):
             self.assertEqual(db, Storage._OPENED_DB)
 
     def test_getDB_ConcurrencyLock(self):
-        unittest.SkipTest("Skipping due to dirty reactor")
         timeout = 1
         d1 = deferToThread(self._runAndDie, timeout, Storage.getDB)
         d1.addCallback(self._cb_assertFalse)
@@ -54,5 +52,4 @@ class DatabaseTest(unittest.TestCase):
         d2 = deferToThread(Storage.getDB, False)
         d2.addCallback(self._cb_assertFalse)
         d2.addErrback(self._eb_Failure)
-        reactor.run()
-        self.assertTrue(Storage.getDB(False))
+        d2.addCallback(self._cb_assertTrue, Storage.getDB(False))
