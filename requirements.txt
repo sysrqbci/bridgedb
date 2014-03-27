@@ -12,3 +12,4 @@ recaptcha==1.0rc1
 recaptcha-client==1.0.6
 zope.interface>=4.0.5
 argparse==1.2.1
+leekspin==0.1.1
