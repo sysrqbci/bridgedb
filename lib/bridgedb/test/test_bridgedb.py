@@ -80,7 +80,11 @@ class BridgeDBCliTest(unittest.TestCase):
         mockProc = Popen([bridgedbScript, 'mock', '-n', '50'])
         mockProcCode = mockProc.wait()
         print("`bridgedb mock' exited with status code %d" % int(mockProcCode))
-        os.chdir(here)
+        try:
+            self.assertTrue(os.path.isfile('cached-extrainfo'))
+            self.assertTrue(os.path.isfile('cached-extrainfo.new'))
+        finally:
+            os.chdir(here)
 
         # See ticket #11216, cached-extrainfo* files should not be parsed
         # cumulatively.
