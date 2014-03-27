@@ -17,7 +17,7 @@ notifications:
     on_failure: change
 
 before_install:
-  - sudo apt-get update
+  #- sudo apt-get update
   # Distro development header/library/resource/buildtime dependencies
   - sudo apt-get install --no-install-suggests --no-install-recommends build-essential openssl sqlite3 libgpgme11 libgpgme11-dev libgeoip-dev geoip-database
   # Distro python dependencies
