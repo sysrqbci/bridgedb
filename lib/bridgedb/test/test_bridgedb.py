@@ -80,17 +80,16 @@ class BridgeDBCliTest(unittest.TestCase):
         mockProc = Popen([bridgedbScript, 'mock', '-n', '50'])
         mockProcCode = mockProc.wait()
         print("`bridgedb mock' exited with status code %d" % int(mockProcCode))
-        try:
-            self.assertTrue(os.path.isfile('cached-extrainfo'))
-            self.assertTrue(os.path.isfile('cached-extrainfo.new'))
-        finally:
-            os.chdir(here)
+        os.chdir(here)
 
         # See ticket #11216, cached-extrainfo* files should not be parsed
         # cumulatively.
         eidesc  = pjoin(runDir, 'cached-extrainfo')
         eindesc = pjoin(runDir, 'cached-extrainfo.new')
         self.doCopyFile(eindesc, eidesc, 'duplicated cached-extrainfo(.new)')
+        self.assertTrue(os.path.isfile(eidesc))
+        self.assertTrue(os.path.isfile(eindesc))
+
 
         print("Running `bridgedb' to test server startups...")
         # Sorry Windows users
