@@ -9,10 +9,11 @@ a webserver with `an HTTPS interface <https://bridges.torproject.org>`__,
 
 .. |Latest Version| image:: https://pypip.in/version/bridgedb/badge.svg?style=flat
    :target: https://pypi.python.org/pypi/bridgedb/
-.. |Build Status| image:: https://travis-ci.org/isislovecruft/bridgedb.svg
-   :target: https://travis-ci.org/isislovecruft/bridgedb
-.. |Coverage Status| image:: https://coveralls.io/repos/isislovecruft/bridgedb/badge.png?branch=develop
-   :target: https://coveralls.io/r/isislovecruft/bridgedb?branch=develop
+.. |Build Status| image:: https://travis-ci.org/sysrqbci/bridgedb.svg
+   :target: https://travis-ci.org/sysrqbci/bridgedb
+.. |Coverage Status| image:: https://coveralls.io/repos/github/sysrqbci/bridgedb/badge.svg?branch=develop
+   :target: https://coveralls.io/github/sysrqbci/bridgedb?branch=develop
+
 
 
 .. image:: doc/sphinx/source/_static/bay-bridge.jpg
@@ -590,4 +591,4 @@ Contact & Support
 
 Send your questions, patches, and suggestions to
 `the tor-dev mailing list <mailto:tor-dev@lists.torproject.org>`__
-or `isis <mailto:isis@torproject.org>`__.
+or `sysrqb <mailto:sysrqb@torproject.org>`__.
