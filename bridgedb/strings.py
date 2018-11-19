@@ -271,7 +271,7 @@ EMAIL_SPRINTF = {
     # For the "%s Tor Browser download page %s" part of ``HOWTO_TBB[1]``
     "HOWTO_TBB1": ("", "[0]"),
     # For the "you should email %s" in ``HELP[0]``
-    "HELP0": ("help@rt.torproject.org"),
+    "HELP0": ("frontdesk@torproject.org"),
 }
 """``EMAIL_SPRINTF`` is a dictionary that maps translated strings which
 contain format specifiers (i.e. ``%s``) to what those format specifiers should
