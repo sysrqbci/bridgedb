@@ -12,7 +12,6 @@ notifications:
     on_failure: always
   email:
     recipients:
-      - isis@torproject.org
       - sysrqb@torproject.org
     on_success: never
     on_failure: change
