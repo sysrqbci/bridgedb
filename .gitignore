@@ -54,6 +54,9 @@ doc/coverage-html/*
 # etags/ctags
 TAGS
 
+# Cscope
+cscope.*
+
 # BridgeDB specific files:
 #-------------------------
 
