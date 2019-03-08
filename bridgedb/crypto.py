@@ -200,7 +200,7 @@ def getKey(filename):
         fh = open(filename, 'rb')
     except IOError:
         logging.debug("getKey(): Creating new secret key.")
-        key = OpenSSL.rand.bytes(32)
+        key = os.urandom(32)
         writeKeyToFile(key, filename)
     else:
         logging.debug("getKey(): Secret key file found. Loading...")
